@@ -20,12 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * Skip all security checks.
+ *
  * This is now what you are looking for. This annotation allows pruning of the security rules
  * applied to any piece of code if you are inside one of the whitelisted classes in the security
  * manager. If you add this annotation to any other class (especially a test class), it will
  * fail the test immediately.
  *
- * This is for internal code such as test rules and runners. Do not use otherwise.
+ * This is for internal code such as test rules and runners. Do not use otherwise. Please do
+ * not send in pull-requests or bug reports to change this behaviour. It is intentional.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowAll">LessIO Wiki, @AllowAll</a>.
  *
  */
 @Retention(RUNTIME)

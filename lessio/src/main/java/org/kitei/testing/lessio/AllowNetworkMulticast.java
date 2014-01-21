@@ -21,7 +21,9 @@ import java.lang.annotation.Target;
 
 /**
  * Under the regime of {@link LessIOSecurityManager}, only classes annotated
- * with this annotation may perform multicast-related network opreations.
+ * with this annotation may perform multicast-related network operations.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowNetworkMulticast">LessIO Wiki, @AllowNetworkMulticast</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)

@@ -20,11 +20,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Under the regime of {@link LessIOSecurityManager}, only classes annotated
- * with this annotation may listen to an IP port. {@link #ports()} is the list
- * of allowed ports.  0 stands for "any ephemeral port" which defaults to
- * <code>32768 - 65535</code>, inclusive.  This may be adjusted via the Java properties
- * <code>kitei.testing.low-ephemeral-port</code> and <code>kitei.testing.high-ephemeral-port</code>
+ * Only classes annotated with this annotation may listen to an IP port when using the
+ * {@link LessIOSecurityManager].
+ *
+ * {@link #ports()} is the list of allowed ports.  0 stands for "any ephemeral port" which defaults to
+ * <code>32768 - 61000</code>, inclusive.  This may be adjusted via the Java properties
+ * <code>kitei.testing.low-ephemeral-port</code> and <code>kitei.testing.high-ephemeral-port</code>.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowNetworkListen">LessIO Wiki, @AllowNetworkListen</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)

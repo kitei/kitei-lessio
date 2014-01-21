@@ -26,7 +26,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>kitei-lessio</name>
+  <name>kitei-lessio root</name>
   <description>
     LessIO is a security manager to control IO for tests.
   </description>

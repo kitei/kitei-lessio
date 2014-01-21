@@ -20,24 +20,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Under the regime of {@link LessIOSecurityManager}, only classes annotated
- * with this annotation may manipulate network sockets. {@link #endpoints()} is
- * the list of allowed IP endpoints (both local and remote) in the
- * "[hostname]:[port]" format (sans-quotes). [hostname] or [port] may be "*",
- * indicating that accessing any hostname, or port, is allowed.  Port may be 0,
- * which indicates that connections may be made to ephemeral ports from the same
- * process.  These ports must have been checked via {@link AllowNetworkListen} with
- * a port of 0 to be considered.
+ * Allows network access when using the  {@link LessIOSecurityManager}.
  *
- * This annotation is used to express both:
- * <ul>
- * <li>the permission to receive an incoming connection from a remote endpoint,
- * and</li>
- * <li>the permission to initiate an outgoing connection to a remote endpoint.</li>
+ * {@link #endpoints()} is the list of allowed IP endpoints (both local and remote)
+ * in <i>[hostname]:[port]</i> format. [hostname] and/or [port] may be "*",
+ * indicating that accessing any hostname, or port, is allowed.
+ *
+ * Port may be 0, which indicates that connections may be made to ephemeral ports.
  *
  * Note that due to performance restrictions, the {@link LessIOSecurityManager}
  * only performs textual matches, and does not resolve hostnames or IP
  * addresses.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowNetworkAccess">LessIO Wiki, @AllowNetworkAccess</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)

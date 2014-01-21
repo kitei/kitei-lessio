@@ -20,12 +20,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Under the regime of {@link LessIOSecurityManager}, only classes annotated
- * with this annotation may spawn processes.
+ * Allow spawning of processes when running under the regime of {@link LessIOSecurityManager}.
  *
- * Annotating a class with this annotation, implies the AllowLocalFileAccess
- * permission for any file descriptor I/O, since file descriptors are essential
- * for process-to-process communication.
+ * Annotating a class with this annotation, implies the {@link AllowLocalFileAccess}
+ * permission for any file descriptor I/O.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowExternalProcess">LessIO Wiki, @AllowExternalProcess</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)

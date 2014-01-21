@@ -40,6 +40,8 @@ import java.lang.annotation.Target;
  * Note that due to performance restrictions, the {@link LessIOSecurityManager}
  * only performs textual matches, and does not recognize symbolic links or hard
  * links.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowLocalFileAccess">LessIO Wiki, @AllowLocalFileAccess</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)

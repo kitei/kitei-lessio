@@ -27,66 +27,30 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A {@link SecurityManager} to spotlight and minimize IO access while allowing
- * fine-grained control access to IO resoucres.
+ * A {@link SecurityManager} for controlling IO access.
  *
- * This class was designed to draw attention to any IO (file and network) your
- * test suite may perform under the hood. IO not only slows down your test
- * suite, but unit tests that accidentally modify their environment may result
- * to flakey builds.
- *
- * Should a unit test need to perform IO, you may grant fine-grained permission
- * by annotating the container class with {@link AllowDNSResolution},
- * {@link AllowExternalProcess}, {@link AllowLocalFileAccess},
- * {@link AllowNetworkAccess}, or {@link AllowNetworkMulticast}. Some of these
- * annotations allow further refinement via parameters.
- *
- * <i>Usage.</i> To use the {@link LessIOSecurityManager}, you must set the
- * "java.security.manager" system property to
- * "org.kitei.testing.lessio.LessIOSecurityManager", or your subclass.
- *
- * <i>Usage via command-line arguments.</i> You may add
- * "-Djava.security.manager=org.kitei.testing.lessio.LessIOSecurityManager"
- * to your command-line invocation of the JVM to use this class as your
- * {@link SecurityManager}.
- *
- * <i>Usage via Ant.</i> You may declare the "java.security.manager" system
- * property in the "junit" element of your "build.xml" file. You <b>must</b> set
- * the "fork" property to ensure a new JVM, with this class as the
- * {@link SecurityManager} is utilized.
- *
- * <pre>
- * {@code
- * <junit fork="true">
- *   <sysproperty key="java.security.manager" value="org.kitei.testing.lessio.LessIOSecurityManager" />
- *   ...
- * </junit>
- * }
- * </pre>
- *
- * <i>Performance.</i> Circa late 2010, the {@link LessIOSecurityManager}'s
- * impact on the performance of our test suite was less than 1.00%.
+ * See <a href="https://github.com/kitei/kitei-lessio/wiki"> for a description
+ * of all features.
  *
  * @see {@link AllowDNSResolution}, {@link AllowExternalProcess},
- *      {@link AllowLocalFileAccess}, {@link AllowNetworkAccess}, and
- *      {@link AllowNetworkMulticast}
+ *      {@link AllowLocalFileAccess}, {@link AllowNetworkAccess},
+ *      {@link AllowNetworkListen}, {@link AllowNetworkMulticast} and
+ *      {@link AllowAll}.
  */
 public class LessIOSecurityManager extends SecurityManager
 {
     private static final String JAVA_HOME = System.getProperty("java.home");
     private static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
-    // Updated at SecurityManager init and again at every ClassLoader init.
-    private static final AtomicReference<List<String>> CP_PARTS = new AtomicReference<List<String>>(getClassPath());
-
     private static final Set<Class<?>> TESTRUNNER_CLASSES;
     private static final Set<Class<?>> WHITELISTED_CLASSES;
     private static final Set<String> LOCAL_HOSTS;
+    private static final Set<String> WHITELISTED_FILES;
 
     private static final String TMP_DIR;
     private static final String JUNIT_TMP_PREFIX;
@@ -94,7 +58,7 @@ public class LessIOSecurityManager extends SecurityManager
     private static final boolean SKIP_CHECKS = Boolean.getBoolean("kitei.testing.skip-lessio-checks");
 
     private static final int LOWEST_EPHEMERAL_PORT = Integer.getInteger("kitei.testing.low-ephemeral-port", 32768);
-    private static final int HIGHEST_EPHEMERAL_PORT = Integer.getInteger("kitei.testing.high-ephemeral-port", 65535);
+    private static final int HIGHEST_EPHEMERAL_PORT = Integer.getInteger("kitei.testing.high-ephemeral-port", 61000);
 
     static {
         final Set<Class<?>> testrunnerClasses = newSetFromMap(new IdentityHashMap<Class<?>, Boolean>());
@@ -128,6 +92,12 @@ public class LessIOSecurityManager extends SecurityManager
 
         LOCAL_HOSTS = unmodifiableSet(localHosts);
 
+        final Set<String> whitelistedFiles = new HashSet<>();
+        whitelistedFiles.add("/dev/random");
+        whitelistedFiles.add("/dev/urandom");
+
+        WHITELISTED_FILES = unmodifiableSet(whitelistedFiles);
+
         TMP_DIR = System.getProperty("java.io.tmpdir", "/tmp").replaceFirst("/$", "");
         JUNIT_TMP_PREFIX = new File(TMP_DIR, "/junit").getAbsolutePath();
     }
@@ -149,8 +119,13 @@ public class LessIOSecurityManager extends SecurityManager
         return classes;
     }
 
+    private static boolean isValidEphemeralPort(int port)
+    {
+        return (port == 0  || (port >= LOWEST_EPHEMERAL_PORT && port <= HIGHEST_EPHEMERAL_PORT));
+    }
 
-    private final Set<Integer> allocatedEphemeralPorts = newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
+    // Updated at SecurityManager init and again at every ClassLoader init.
+    private final AtomicReference<List<String>> classpathParts = new AtomicReference<List<String>>(getClassPath());
 
     /**
      * Any subclasses that override this method <b>must</b> include any Class<?>
@@ -172,7 +147,7 @@ public class LessIOSecurityManager extends SecurityManager
         return WHITELISTED_CLASSES;
     }
 
-    private static List<String> getClassPath()
+    private List<String> getClassPath()
     {
         return Collections.unmodifiableList(Arrays.asList(System.getProperty("java.class.path", "").split(PATH_SEPARATOR)));
     }
@@ -284,10 +259,11 @@ public class LessIOSecurityManager extends SecurityManager
         return false;
     }
 
-    // {{ Allowed only via {@link @AllowNetworkAccess}, {@link @AllowNetworkListen}, {@link @AllowDNSResolution}, or {@link @AllowNetworkMulticast})
+    // Allowed only via {@link @AllowNetworkAccess}, {@link @AllowNetworkListen},
+    // {@link @AllowDNSResolution}, or {@link @AllowNetworkMulticast})
     private void checkDNSResolution(final String host) throws CantDoItException
     {
-        if (LOCAL_HOSTS.contains(host)) {
+        if (LOCAL_HOSTS.contains(host.toLowerCase(Locale.ENGLISH))) {
             return; // Always allow localhost
         }
 
@@ -331,10 +307,12 @@ public class LessIOSecurityManager extends SecurityManager
                     for (final String endpoint : endpoints) {
                         final String[] parts = endpoint.split(":");
                         final String portAsString = Integer.toString(port);
-                        if (parts[0].equals(host) && parts[1].equals(portAsString)
-                            || parts[0].equals("*") && parts[1].equals(portAsString)
-                            || parts[0].equals(host) && parts[1].equals("*")
-                            || parts[0].equals(host) && parts[1].equals("0") && allocatedEphemeralPorts.contains(port)) {
+
+                        boolean hostMatches = parts[0].equals("*") || parts[0].equals(host);
+                        boolean portMatches = parts[1].equals("*") || parts[1].equals(portAsString)
+                                        || (parts[1].equals("0") && isValidEphemeralPort(port));
+
+                        if (hostMatches && portMatches) {
                             return true;
                         }
                     }
@@ -361,21 +339,16 @@ public class LessIOSecurityManager extends SecurityManager
     @Override
     public void checkConnect(final String host, final int port, final Object context) throws CantDoItException
     {
-        if (SKIP_CHECKS) {
-            return;
-        }
-
-        if (port == -1) {
-            checkDNSResolution(host);
-        }
-        else {
-            checkNetworkEndpoint(host, port, "connect");
-        }
+        checkConnect(host, port);
     }
 
     @Override
     public void checkConnect(final String host, final int port) throws CantDoItException
     {
+        if (host == null) {
+            throw new NullPointerException("host is null");
+        }
+
         if (SKIP_CHECKS) {
             return;
         }
@@ -411,11 +384,10 @@ public class LessIOSecurityManager extends SecurityManager
                     }
 
                     for (int p : ports) {
-                        if (p == 0 && port >= LOWEST_EPHEMERAL_PORT && port <= HIGHEST_EPHEMERAL_PORT) { // Check for access to ephemeral ports
-                            p = port;
-                            allocatedEphemeralPorts.add(port);
+                        if (p == 0 && isValidEphemeralPort(port)) {
+                            return true;
                         }
-                        if (p == port) {
+                        else if (p == port) {
                             return true;
                         }
                     }
@@ -459,9 +431,7 @@ public class LessIOSecurityManager extends SecurityManager
     @Override
     public void checkMulticast(final InetAddress maddr, final byte ttl) throws CantDoItException
     {
-        if (!SKIP_CHECKS) {
-            checkMulticast(maddr);
-        }
+        checkMulticast(maddr);
     }
 
     // }}
@@ -476,7 +446,7 @@ public class LessIOSecurityManager extends SecurityManager
                 return;
             }
 
-            if (file.startsWith("/dev/random") || file.startsWith("/dev/urandom")) {
+            if (WHITELISTED_FILES.contains(file)) {
                 return;
             }
 
@@ -490,7 +460,7 @@ public class LessIOSecurityManager extends SecurityManager
              * suboptimal location to avoid ClassCircularityErrors that can occur when
              * attempting to load an anonymous class.
              */
-            for (final String part : CP_PARTS.get()) {
+            for (final String part : classpathParts.get()) {
                 if (file.startsWith(part)) {
                     // Files in the CLASSPATH are always allowed
                     return;
@@ -533,8 +503,8 @@ public class LessIOSecurityManager extends SecurityManager
         }
     }
 
-    public void checkFileDescriptorAccess(final FileDescriptor fd,
-                                          final String description) throws CantDoItException
+    private void checkFileDescriptorAccess(final FileDescriptor fd,
+                                           final String description) throws CantDoItException
     {
         final Class<?>[] classContext = getClassContext();
         if (traceWithoutExplicitlyAllowedClass(classContext)) {
@@ -579,16 +549,14 @@ public class LessIOSecurityManager extends SecurityManager
     @Override
     public void checkRead(final String file, final Object context)
     {
-        if (!SKIP_CHECKS) {
-            checkFileAccess(file, "read");
-        }
+        checkRead(file);
     }
 
     @Override
     public void checkRead(final String file)
     {
         if (!SKIP_CHECKS) {
-            checkRead(file, null);
+            checkFileAccess(file, "read");
         }
     }
 
@@ -624,9 +592,6 @@ public class LessIOSecurityManager extends SecurityManager
         }
     }
 
-    // }}
-
-    // {{ Allowed only via {@link @AllowExternalProcess}
     @Override
     public void checkExec(final String cmd) throws CantDoItException
     {
@@ -652,9 +617,6 @@ public class LessIOSecurityManager extends SecurityManager
         }
     }
 
-    // }}
-
-    // {{ Always Allowed
     @Override
     public void checkAccess(final Thread t)
     {
@@ -700,9 +662,6 @@ public class LessIOSecurityManager extends SecurityManager
     {
     }
 
-    // }}
-
-    // {{ Undecided -- Can these be called in the real functions' stead?
     @Override
     public void checkPermission(final Permission perm, final Object context)
     {
@@ -713,15 +672,13 @@ public class LessIOSecurityManager extends SecurityManager
     {
     }
 
-    // }}
-
     @Override
     public void checkCreateClassLoader()
     {
-        // This is re-set on classloader creation in case the classpath has changed.
+        // This is reset on classloader creation in case the classpath has changed.
         // In particular, Maven's Surefire booter changes the classpath after the security
         // manager has been initialized.
-        CP_PARTS.set(getClassPath());
+        classpathParts.set(getClassPath());
     }
 
     private boolean isClassWhitelisted(final Class<?> clazz)
@@ -730,6 +687,7 @@ public class LessIOSecurityManager extends SecurityManager
             return true;
         }
 
+        // Inner/Nested classes are whitelisted by their enclosing classes.
         Class<?> enclosingClass = clazz.getEnclosingClass();
         while (enclosingClass != null) {
             if (isClassWhitelisted(enclosingClass)) {
@@ -753,7 +711,7 @@ public class LessIOSecurityManager extends SecurityManager
                 return false;
             }
 
-            // Any class marked as a test runner can declare itself to allow everything.
+            // Any class marked as a test runner can be annotated to allow everything.
             if (isTestrunnerClass(clazz) && hasAnnotations(clazz, AllowAll.class)) {
                 return false;
             }
@@ -789,33 +747,7 @@ public class LessIOSecurityManager extends SecurityManager
         }
 
         // No class on the stack trace is properly authorized, throw an exception.
-        final CantDoItException e = new CantDoItException("No class in the class context satisfies %s", classAuthorized);
-        throw e;
-    }
-
-    public StackTraceElement currentTest(final Class<?>[] classContext)
-    {
-        // The first class right before TestMethodRunner in the class context
-        // array is the class that contains our test.
-        Class<?> testClass = null;
-        for (final Class<?> clazz : classContext) {
-            if (isTestrunnerClass(clazz)) {
-                break;
-            }
-
-            testClass = clazz;
-        }
-
-        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-
-        StackTraceElement testClassStackFrame = null;
-        for (final StackTraceElement el : stackTrace) {
-            if (el.getClassName().equals(testClass.getCanonicalName())) {
-                testClassStackFrame = el;
-            }
-        }
-
-        return testClassStackFrame;
+        throw new CantDoItException("No class in the class context satisfies %s", classAuthorized);
     }
 
     public static class CantDoItException extends RuntimeException

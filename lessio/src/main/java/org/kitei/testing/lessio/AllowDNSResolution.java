@@ -20,13 +20,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Under the regime of {@link LessIOSecurityManager}, only classes annotated
- * with this annotation may use the DNS system to resolve hostnames or IP
+ * Allow DNS resolution while running under the regime of the {@link LessIOSecurityManager}.
+ *
+ * Only classes annotated with this annotation may use the DNS system to resolve hostnames or IP
  * addresses.
  *
  * Annotating a class with {@link AllowNetworkMulticast},
- * {@link AllowNetworkListen}, or {@link AllowNetworkAccess}, implies permission
- * to use the DNS system as described above.
+ * {@link AllowNetworkListen}, or {@link AllowNetworkAccess} includes this permission.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowDNSResolution">LessIO Wiki, @AllowDNSResolution</a>.
  */
 @Retention(RUNTIME)
 @Target(TYPE)
