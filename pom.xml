@@ -23,7 +23,7 @@
 
   <groupId>org.kitei.testing</groupId>
   <artifactId>lessio-build-root</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>kitei-lessio root</name>
@@ -38,7 +38,7 @@
     <connection>scm:git:git://github.com/kitei/kitei-lessio.git</connection>
     <developerConnection>scm:git:git@github.com:kitei/kitei-lessio.git</developerConnection>
     <url>https://github.com/kitei/kitei-lessio/</url>
-    <tag>kitei-lessio-1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <licenses>
