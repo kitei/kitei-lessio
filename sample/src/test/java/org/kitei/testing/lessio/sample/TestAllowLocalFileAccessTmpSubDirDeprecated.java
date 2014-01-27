@@ -14,16 +14,15 @@
 package org.kitei.testing.lessio.sample;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.AllowTmpDirAccess;
+import org.kitei.testing.lessio.AllowLocalFileAccess;
 
-@AllowTmpDirAccess
-public class TestAllowLocalFileAccessTmpDirOk
+@AllowLocalFileAccess(paths={"%TMP_DIR%/hello-*"})
+public class TestAllowLocalFileAccessTmpSubDirDeprecated
 {
     @Test
     public void testLocalFileSystem()
@@ -31,12 +30,4 @@ public class TestAllowLocalFileAccessTmpDirOk
         final File f = new File(System.getProperty("java.io.tmpdir"), "hello-bogus" + UUID.randomUUID().toString());
         assertFalse(f.getAbsolutePath() + " exists???", f.exists());
     }
-
-    @Test
-    public void testTmpDirItself()
-    {
-        final File f = new File(System.getProperty("java.io.tmpdir"));
-        assertTrue(f.getAbsolutePath() + " exists???", f.exists());
-    }
-
 }

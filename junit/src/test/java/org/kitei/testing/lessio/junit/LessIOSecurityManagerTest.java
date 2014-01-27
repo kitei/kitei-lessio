@@ -14,6 +14,7 @@
 package org.kitei.testing.lessio.junit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,8 +24,8 @@ import com.google.common.base.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.kitei.testing.lessio.LessIOException;
 import org.kitei.testing.lessio.LessIOSecurityManager;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
 
 public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
 {
@@ -69,7 +70,7 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                     assertTrue(String.format(
                         "Received %s (%s) instead of CantDoItException", e.getClass()
                             .getCanonicalName(), e.getLocalizedMessage()),
-                        e instanceof CantDoItException);
+                        e instanceof LessIOException);
                 }
             }
         });
@@ -95,9 +96,11 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                 @Override
                 public void run() throws Exception
                 {
-                    throw new CantDoItException("");
+                    throw new LessIOException("") {};
                 }
             }, Optional.<Class<? extends Exception>>absent());
+
+            fail();
         }
         catch (final AssertionError e) {
             // Success
@@ -111,7 +114,7 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
             @Override
             public void run() throws Exception
             {
-                throw new CantDoItException("");
+                throw new LessIOException("") {};
             }
         });
 
@@ -123,6 +126,7 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                     // Intentionally left empty.
                 }
             });
+            fail();
         }
         catch (final AssertionError e) {
             // Success

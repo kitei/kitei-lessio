@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kitei.testing.lessio.sample;
+package org.kitei.testing.lessio;
 
-import static org.junit.Assert.assertTrue;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import org.junit.Test;
-import org.kitei.testing.lessio.LessIOException;
-
-public class TestAllowLocalFileAccessDenied
+/**
+ * This annotation allows access to the tmp folder as set by java.io.tmpdir at
+ * the starting time of the tests.
+ *
+ * @see <a href="https://github.com/kitei/kitei-lessio/wiki/@AllowTmpDirAccess">LessIO Wiki, @AllowTmpDirAccess</a>.
+ */
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface AllowTmpDirAccess
 {
-    @Test(expected = LessIOException.class)
-    public void testLocalFileSystem()
-    {
-        final File f = new File("/etc/services");
-        assertTrue("No /etc/services?", f.exists());
-    }
 }

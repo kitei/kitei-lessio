@@ -20,11 +20,11 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 public class TestAllowDNSResolutionDenied
 {
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testDNSLookup() throws Exception
     {
         InetAddress googleIpv4 = Inet4Address.getByName("google.com");

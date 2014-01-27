@@ -35,11 +35,11 @@ import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 public class TestAllowNetworkListenDenied
 {
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testNetworkListen() throws Exception
     {
         try (final ServerSocket serverSocket = new ServerSocket()) {

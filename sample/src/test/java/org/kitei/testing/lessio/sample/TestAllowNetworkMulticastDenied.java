@@ -25,12 +25,12 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.kitei.testing.lessio.AllowNetworkListen;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 @AllowNetworkListen(ports={0})
 public class TestAllowNetworkMulticastDenied
 {
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testMulticast() throws Exception
     {
             try (final DatagramSocket socket = new DatagramSocket(0)) {

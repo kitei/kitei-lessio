@@ -25,11 +25,11 @@ import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 public class TestAllowExternalProcessDenied
 {
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testExternalProcess() throws Exception
     {
         Process p = new ProcessBuilder("/usr/bin/whoami").start();
@@ -40,7 +40,7 @@ public class TestAllowExternalProcessDenied
             }
     }
 
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testCanExecute() throws Exception
     {
         final File f = new File("/usr/bin/whoami");

@@ -24,11 +24,11 @@ import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 public class TestAllowNetworkAccessDenied
 {
-    @Test(expected = CantDoItException.class)
+    @Test(expected = LessIOException.class)
     public void testNetworkAccess() throws Exception
     {
         final URL wellKnown = new URL("http://google.com/");

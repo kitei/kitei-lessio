@@ -20,10 +20,10 @@ import java.io.File;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.kitei.testing.lessio.AllowTmpDirAccess;
+import org.kitei.testing.lessio.AllowLocalFileAccess;
 
-@AllowTmpDirAccess
-public class TestAllowLocalFileAccessTmpDirOk
+@AllowLocalFileAccess(paths={"%TMP_DIR%"})
+public class TestAllowLocalFileAccessTmpDirDeprecated
 {
     @Test
     public void testLocalFileSystem()

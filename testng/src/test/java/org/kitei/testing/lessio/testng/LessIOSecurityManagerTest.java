@@ -16,6 +16,7 @@ package org.kitei.testing.lessio.testng;
 import static java.lang.String.format;
 
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,8 +24,8 @@ import java.net.Socket;
 
 import com.google.common.base.Optional;
 
+import org.kitei.testing.lessio.LessIOException;
 import org.kitei.testing.lessio.LessIOSecurityManager;
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -67,7 +68,7 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                     openSocket();
                 }
                 catch (final Exception e) {
-                    assertTrue(e instanceof CantDoItException,
+                    assertTrue(e instanceof LessIOException,
                         format("Received %s (%s) instead of CantDoItException", e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                 }
             }
@@ -94,9 +95,11 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                 @Override
                 public void run() throws Exception
                 {
-                    throw new CantDoItException("");
+                    throw new LessIOException("") {};
                 }
             }, Optional.<Class<? extends Exception>>absent());
+
+            fail();
         }
         catch (final AssertionError e) {
             // Success
@@ -110,7 +113,7 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
             @Override
             public void run() throws Exception
             {
-                throw new CantDoItException("");
+                throw new LessIOException("") {};
             }
         });
 
@@ -122,6 +125,8 @@ public class LessIOSecurityManagerTest extends AbstractLessIOSecurityManagerTest
                     // Intentionally left empty.
                 }
             });
+
+            fail();
         }
         catch (final AssertionError e) {
             // Success

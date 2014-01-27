@@ -11,21 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kitei.testing.lessio.sample;
+package org.kitei.testing.lessio;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
-import org.junit.Test;
-import org.kitei.testing.lessio.LessIOException;
-
-public class TestAllowLocalFileAccessDenied
+interface LessIOPredicate
 {
-    @Test(expected = LessIOException.class)
-    public void testLocalFileSystem()
-    {
-        final File f = new File("/etc/services");
-        assertTrue("No /etc/services?", f.exists());
-    }
+    boolean check(Class<?> clazz) throws Exception;
+
+    @Override
+    String toString();
 }

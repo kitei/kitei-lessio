@@ -11,21 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kitei.testing.lessio.sample;
+package org.kitei.testing.lessio;
 
-import static org.junit.Assert.assertTrue;
+import static java.lang.String.format;
 
-import java.io.File;
-
-import org.junit.Test;
-import org.kitei.testing.lessio.LessIOException;
-
-public class TestAllowLocalFileAccessDenied
+public class LessIOException extends RuntimeException
 {
-    @Test(expected = LessIOException.class)
-    public void testLocalFileSystem()
+    private static final long serialVersionUID = 1L;
+
+    protected LessIOException(final String fmt, final Object ... args)
     {
-        final File f = new File("/etc/services");
-        assertTrue("No /etc/services?", f.exists());
+        super(format(fmt, args));
+    }
+
+    protected LessIOException(final Throwable t, final String fmt, final Object ... args)
+    {
+        super(format(fmt, args), t);
     }
 }

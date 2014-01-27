@@ -27,7 +27,7 @@ import org.kitei.testing.lessio.LessIOSecurityManager;
 
 public class AllowNetworkAccessTest extends AbstractLessIOSecurityManagerTest
 {
-    protected class DisallowedOperation implements RunnableWithException
+    private class DisallowedOperation implements RunnableWithException
     {
         @Override
         public void run() throws IOException
@@ -39,7 +39,7 @@ public class AllowNetworkAccessTest extends AbstractLessIOSecurityManagerTest
     }
 
     @AllowNetworkAccess(endpoints = { "127.0.0.1:1" })
-    protected class AllowedOperation extends DisallowedOperation
+    private class AllowedOperation extends DisallowedOperation
     {
         @Override
         public void run() throws IOException
@@ -49,7 +49,7 @@ public class AllowNetworkAccessTest extends AbstractLessIOSecurityManagerTest
     }
 
     @AllowNetworkAccess(endpoints = { "*:1" })
-    protected class AllowedWildcardOperation extends DisallowedOperation
+    private class AllowedWildcardOperation extends DisallowedOperation
     {
         @Override
         public void run() throws IOException
@@ -59,7 +59,7 @@ public class AllowNetworkAccessTest extends AbstractLessIOSecurityManagerTest
     }
 
     @AllowNetworkAccess(endpoints = { "localhost:25" })
-    protected class MisannotatedOperation extends DisallowedOperation
+    private class MisannotatedOperation extends DisallowedOperation
     {
         @Override
         public void run() throws IOException

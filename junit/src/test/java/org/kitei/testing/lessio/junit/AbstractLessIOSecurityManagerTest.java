@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.base.Optional;
 
-import org.kitei.testing.lessio.LessIOSecurityManager.CantDoItException;
+import org.kitei.testing.lessio.LessIOException;
 
 public abstract class AbstractLessIOSecurityManagerTest
 {
@@ -52,7 +52,7 @@ public abstract class AbstractLessIOSecurityManagerTest
                     runnable.run();
                 }
                 catch (final Exception e) {
-                    assertFalse(format("Action must be allowed. I should not catch a %s (%s)", e.getClass().getCanonicalName(), e.getLocalizedMessage()), e instanceof CantDoItException);
+                    assertFalse(format("Action must be allowed. I should not catch a %s (%s)", e.getClass().getCanonicalName(), e.getLocalizedMessage()), e instanceof LessIOException);
                     if (expectedOption.isPresent()) {
                         final Class<?> expected = expectedOption.get();
                         assertTrue(format("Expecting exception %s but received %s (%s)", expected.getCanonicalName(), e.getClass().getCanonicalName(), e.getLocalizedMessage()), e.getClass().isAssignableFrom(expected));
@@ -78,7 +78,7 @@ public abstract class AbstractLessIOSecurityManagerTest
                 }
                 catch (final Exception e) {
                     assertTrue(format("Action must be disallowed. However, no CantDoItException was thrown. Instead, a %s (%s) was caught.", e.getClass().getCanonicalName(), e.getLocalizedMessage()),
-                        e instanceof CantDoItException);
+                        e instanceof LessIOException);
                     return;
                 }
                 fail("Action must be disallowed. However, no CantDoItException was thrown.");
