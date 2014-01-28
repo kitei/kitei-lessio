@@ -76,7 +76,7 @@ class LessIOFilesystemDelegate
     boolean checkFilesystemAccess(final Path path)
         throws IOException
     {
-        Boolean result = whitelistCache.get(path);
+        final Boolean result = whitelistCache.get(path);
         if (result != null) {
             return result;
         }
@@ -111,7 +111,6 @@ class LessIOFilesystemDelegate
 
         return false;
     }
-
 
     LessIOPredicate getFileAccessPredicate(final Path path, final String description)
     {

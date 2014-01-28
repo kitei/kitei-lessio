@@ -119,9 +119,9 @@ class LessIONetworkDelegate
 
                 if (parts.length == 2) {
                     if (!(parts[0].equals("*")
-                        || parts[0].equals(host))) {
+                    || parts[0].equals(host))) {
                         // The host part is not a wildcard and does not match. No need to check the port.
-                        return false;
+                        continue;
                     }
 
                     if (parts[1].equals("*")

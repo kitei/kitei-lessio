@@ -38,5 +38,4 @@ public class TestAllowLocalFileAccessTmpDirOk
         final File f = new File(System.getProperty("java.io.tmpdir"));
         assertTrue(f.getAbsolutePath() + " exists???", f.exists());
     }
-
 }
