@@ -39,8 +39,6 @@ public class LessIOSecurityManager
 {
     private static final boolean SKIP_CHECKS = Boolean.getBoolean("kitei.testing.skip-lessio-checks");
 
-    private final LessIOContext context;
-
     // Updated at SecurityManager init and again at every ClassLoader init.
     private final AtomicReference<List<String>> classpathHolder = new AtomicReference<List<String>>();
 
@@ -86,6 +84,9 @@ public class LessIOSecurityManager
 
         builder.addWhitelistedHosts(
             "localhost",
+            "localhost6",
+            "localhost.localdomain",
+            "localhost6.localdomain6",
             "127.0.0.1",
             "::1");
 
@@ -108,7 +109,7 @@ public class LessIOSecurityManager
 
     protected LessIOSecurityManager(final LessIOContext context)
     {
-        this.context = checkNotNull(context, "context is null");
+        checkNotNull(context, "context is null");
         this.classpathHolder.set(getCurrentClassPath());
 
         for (final Class<?> whitelistedClass : context.getWhitelistedClasses()) {

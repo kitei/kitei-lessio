@@ -32,10 +32,19 @@ public class TestAllowDNSResolutionLocalhostOk
 
         String localIpv4 = Inet4Address.getByName("127.0.0.1").getCanonicalHostName();
         assertNotNull(localIpv4);
+        localIpv4 = (localIpv4.indexOf('.') == -1) ? localIpv4 : localIpv4.substring(0, localIpv4.indexOf('.'));
         assertEquals("not localhost for ipv4", "localhost", localIpv4);
 
         String localIpv6 = Inet6Address.getByName("::1").getCanonicalHostName();
         assertNotNull(localIpv6);
+        // Allow localhost, localhost6, localhost.<some domain>, localhost6.<some domain>
+        localIpv6 = (localIpv6.indexOf('.') == -1) ? localIpv6 : localIpv6.substring(0, localIpv6.indexOf('.'));
+
+        // Allow localhost, localhost6
+        if (localIpv6.endsWith("6")) {
+            localIpv6 = localIpv6.substring(0, localIpv6.length()-1);
+        }
+
         assertEquals("not localhost for ipv6", "localhost", localIpv6);
     }
 }
