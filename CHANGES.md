@@ -1,5 +1,11 @@
 # Changes
 
+## Version 2.1 - 2014-03-20
+
+Add a default exception for `InetAddress.getLocalHost()`.
+Some libraries (e.g. Logback) will look up the hostname during initialization, which
+trips a DNS permission violation.  Now this is allowed by default.
+
 ## Version 2.0 - 2014-01-27
 
 * Added `@AllowTmpDirAccess` and `@AllowFileDescriptorIO` annotations.

@@ -22,6 +22,7 @@ import static org.kitei.testing.lessio.LessIOUtils.safeClassForNames;
 
 import java.io.FileDescriptor;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Permission;
@@ -89,6 +90,15 @@ public class LessIOSecurityManager
             "localhost6.localdomain6",
             "127.0.0.1",
             "::1");
+
+        try {
+            final InetAddress local = InetAddress.getLocalHost();
+            builder.addWhitelistedHosts(
+                local.getHostAddress(),
+                local.getHostName());
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
 
         builder.addWhitelistedPaths(Paths.get("/dev/random"),
             Paths.get("/dev/urandom"));
